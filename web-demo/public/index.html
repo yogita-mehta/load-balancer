@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AegisLB | Live Demo</title>
+    <style>
+        :root {
+            --bg: #0a0a0c;
+            --surface: #16161a;
+            --primary: #4f46e5;
+            --accent: #10b981;
+            --text: #e2e8f0;
+            --terminal-bg: #000000;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        header {
+            width: 100%;
+            padding: 2rem 0;
+            background: linear-gradient(to bottom, #1e1b4b, var(--bg));
+            text-align: center;
+            border-bottom: 1px solid #ffffff10;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 2.5rem;
+            letter-spacing: -0.05em;
+            background: linear-gradient(to right, #818cf8, #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        p.subtitle {
+            color: #94a3b8;
+            margin-top: 0.5rem;
+        }
+
+        main {
+            width: 90%;
+            max-width: 1000px;
+            margin-top: 2rem;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 2rem;
+        }
+
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.4);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.5);
+            background-color: #4338ca;
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .terminal-container {
+            background-color: var(--terminal-bg);
+            border: 1px solid #ffffff20;
+            border-radius: 0.75rem;
+            padding: 1rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            height: 600px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .terminal-header {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #ffffff10;
+        }
+
+        .dot { width: 12px; height: 12px; border-radius: 50%; }
+        .red { background: #ff5f56; }
+        .yellow { background: #ffbd2e; }
+        .green { background: #27c93f; }
+
+        #output {
+            flex-grow: 1;
+            font-family: 'Fira Code', 'Courier New', Courier, monospace;
+            font-size: 0.9rem;
+            line-height: 1.4;
+            color: var(--accent);
+            overflow-y: auto;
+            white-space: pre-wrap;
+            scrollbar-width: thin;
+            scrollbar-color: #333 transparent;
+        }
+
+        #output::-webkit-scrollbar { width: 6px; }
+        #output::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
+
+        footer {
+            margin-top: auto;
+            padding: 2rem;
+            color: #475569;
+            font-size: 0.875rem;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>AegisLB Simulator</h1>
+        <p class="subtitle">Distributed Load Balancer Performance Dashboard</p>
+    </header>
+
+    <main>
+        <div class="controls">
+            <button id="startBtn">🚀 Start Live Simulation</button>
+        </div>
+
+        <div class="terminal-container">
+            <div class="terminal-header">
+                <div class="dot red"></div>
+                <div class="dot yellow"></div>
+                <div class="dot green"></div>
+                <span style="color: #475569; margin-left: 1rem; font-size: 0.75rem;">root@aegislb-vps:~</span>
+            </div>
+            <div id="output">Ready to simulate. Press 'Start' to trigger the LeastConnections algorithm benchmark...</div>
+        </div>
+    </main>
+
+    <footer>
+        Designed by Yogita Mehta &bull; C++17 &bull; Node.js
+    </footer>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+        const output = document.getElementById('output');
+        const startBtn = document.getElementById('startBtn');
+
+        startBtn.addEventListener('click', () => {
+            output.innerHTML = "[System] Initializing backend simulation engine...\n";
+            startBtn.disabled = true;
+            startBtn.innerHTML = "⚡ Simulation Running...";
+            socket.emit('start-sim');
+        });
+
+        socket.on('output', (data) => {
+            // If it's a dashboard refresh, clear the old one for "live" feel
+            if (data.includes("LOAD BALANCER DASHBOARD")) {
+                output.innerHTML = data;
+            } else {
+                output.innerHTML += data;
+            }
+            output.scrollTop = output.scrollHeight;
+        });
+    </script>
+</body>
+</html>
