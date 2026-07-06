@@ -1,5 +1,5 @@
 # --- Build Phase: C++ ---
-FROM gcc:latest AS cpp-builder
+FROM gcc:13 AS cpp-builder
 RUN apt-get update && apt-get install -y cmake
 WORKDIR /app
 COPY . .
@@ -8,7 +8,8 @@ RUN mkdir build && cd build && \
     make -j$(nproc)
 
 # --- Runtime Phase: Node.js + C++ Binary ---
-FROM node:18-slim
+# Using Bookworm to match the GCC 13 glibc versions
+FROM node:20-bookworm-slim
 
 # Install minimal libraries for C++ execution
 RUN apt-get update && apt-get install -y libstdc++6 && rm -rf /var/lib/apt/lists/*
