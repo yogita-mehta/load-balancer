@@ -101,4 +101,3 @@ Distributed under the MIT License. See `LICENSE` for more information.
 
 ---
 
-**Developed with ❤️ by [Yogita Mehta](https://github.com/yogita-mehta)**
